@@ -1,108 +1,10 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './App.css';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet-draw';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import ReactModal from 'react-modal';
+import { DrawController } from './components/DrawController/DrawController';
 
 type AreaCoordinates = number[][]; // [ [lat, lng], ... ]
-
-type DrawControllerProps = {
-  onAreaSelected: (coords: AreaCoordinates) => void;
-};
-
-const DrawController: React.FC<DrawControllerProps> = ({ onAreaSelected }) => {
-  const map = useMap();
-  const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
-
-  // Use useRef to store the draw control instance
-  const drawControlRef = useRef<L.Control.Draw | null>(null);
-
-  React.useEffect(() => {
-    // Only initialize if not already initialized
-    if (!drawControlRef.current) {
-      // Create a feature group to store drawn items
-      drawnItemsRef.current = new L.FeatureGroup();
-      map.addLayer(drawnItemsRef.current);
-      
-      // Initialize draw control with only rectangle enabled
-      drawControlRef.current = new L.Control.Draw({
-        position: 'topleft',
-        draw: {
-          polygon: false,
-          rectangle: {
-            shapeOptions: {
-              color: '#3388ff',
-              weight: 4,
-              opacity: 0.5,
-              fillOpacity: 0.2
-            }
-          },
-          circle: false,
-          marker: false,
-          circlemarker: false,
-          polyline: false
-        }
-      });
-      
-      // Add the control to the map
-      map.addControl(drawControlRef.current);
-    }
-    
-    const onCreated = (e: any) => {
-      const layer = e.layer as L.Rectangle;
-      
-      // Clear existing layers before adding new one
-      if (drawnItemsRef.current) {
-        drawnItemsRef.current.clearLayers();
-        drawnItemsRef.current.addLayer(layer);
-      }
-
-      try {
-        const bounds = layer.getBounds();
-        const nw = bounds.getNorthWest();
-        const ne = bounds.getNorthEast();
-        const se = bounds.getSouthEast();
-        const sw = bounds.getSouthWest();
-        
-        const coordinates: AreaCoordinates = [
-          [nw.lat, nw.lng],
-          [ne.lat, ne.lng],
-          [se.lat, se.lng],
-          [sw.lat, sw.lng],
-          [nw.lat, nw.lng] // Close the polygon
-        ];
-        
-        console.log('Rectangle coordinates:', coordinates);
-        onAreaSelected(coordinates);
-      } catch (error) {
-        console.error('Error processing drawn shape:', error);
-      }
-    };
-
-    // Add event listener
-    map.on('draw:created', onCreated);
-
-    // Cleanup function
-    return () => {
-      map.off('draw:created', onCreated);
-      
-      // Clean up draw control if it exists
-      if (drawControlRef.current) {
-        map.removeControl(drawControlRef.current);
-        drawControlRef.current = null;
-      }
-      
-      // Remove drawn items
-      if (drawnItemsRef.current) {
-        map.removeLayer(drawnItemsRef.current);
-        drawnItemsRef.current = null;
-      }
-    };
-  }, [map, onAreaSelected]);
-
-  return null;
-};
 
 const App: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -132,13 +34,13 @@ const App: React.FC = () => {
       <ReactModal
         isOpen={modalOpen}
         onRequestClose={() => setModalOpen(false)}
-        contentLabel="Выделенная область"
+        contentLabel="Coordinates of selected area"
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <h2>Координаты выделенной области</h2>
+        <h2>Coordinates of selected area</h2>
         {coords.length === 0 ? (
-          <p>Нет данных</p>
+          <p>No data</p>
         ) : (
           <div className="coords-list">
             {coords.map(([lat, lng], idx) => (
@@ -151,7 +53,7 @@ const App: React.FC = () => {
           </div>
         )}
         <div className="modal-actions">
-          <button onClick={() => setModalOpen(false)}>Закрыть</button>
+          <button onClick={() => setModalOpen(false)}>Close</button>
         </div>
       </ReactModal>
     </div>

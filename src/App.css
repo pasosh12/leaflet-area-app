@@ -3,7 +3,7 @@
 }
 
 .map-wrapper {
-  height: 50vh; /* make map full screen height */
+  height: 50vh; 
   margin: 0 auto;
   width: 100%;
 }
@@ -13,12 +13,10 @@
   width: 100%;
 }
 
-/* Ensure Leaflet controls (including Draw toolbar) are above tiles */
+
 .leaflet-control-container {
   z-index: 1001;
 }
-
-/* Positioning/visibility tweaks for draw toolbar */
 .leaflet-left .leaflet-draw-toolbar {
   margin-top: 10px;
 }
@@ -26,7 +24,6 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -87,5 +84,3 @@
 .modal-actions > button:hover {
   background: #1864ab;
 }
-.leaflet-draw-toolbar { display: block !important; visibility: visible !important; }
-.leaflet-control { z-index: 1002 !important; } 
