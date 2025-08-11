@@ -15,39 +15,46 @@ const DrawController: React.FC<DrawControllerProps> = ({ onAreaSelected }) => {
   const map = useMap();
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
 
+  // Use useRef to store the draw control instance
+  const drawControlRef = useRef<L.Control.Draw | null>(null);
+
   React.useEffect(() => {
-    // Create a feature group to store drawn items
-    drawnItemsRef.current = new L.FeatureGroup([]);
-    map.addLayer(drawnItemsRef.current);
-    
-    // Initialize draw control with only rectangle enabled
-    const drawControl = new L.Control.Draw({
-      position: 'topleft',
-      draw: {
-        polygon: false,
-        rectangle: {
-          shapeOptions: {
-            color: '#3388ff',
-            weight: 4,
-            opacity: 0.5,
-            fillOpacity: 0.2
-          }
-        },
-        circle: false,
-        marker: false,
-        circlemarker: false,
-        polyline: false
-      }
-    });
-    
-    // Add the control to the map
-    map.addControl(drawControl);
+    // Only initialize if not already initialized
+    if (!drawControlRef.current) {
+      // Create a feature group to store drawn items
+      drawnItemsRef.current = new L.FeatureGroup();
+      map.addLayer(drawnItemsRef.current);
+      
+      // Initialize draw control with only rectangle enabled
+      drawControlRef.current = new L.Control.Draw({
+        position: 'topleft',
+        draw: {
+          polygon: false,
+          rectangle: {
+            shapeOptions: {
+              color: '#3388ff',
+              weight: 4,
+              opacity: 0.5,
+              fillOpacity: 0.2
+            }
+          },
+          circle: false,
+          marker: false,
+          circlemarker: false,
+          polyline: false
+        }
+      });
+      
+      // Add the control to the map
+      map.addControl(drawControlRef.current);
+    }
     
     const onCreated = (e: any) => {
       const layer = e.layer as L.Rectangle;
       
-      // Add the layer to the map
+      // Clear existing layers before adding new one
       if (drawnItemsRef.current) {
+        drawnItemsRef.current.clearLayers();
         drawnItemsRef.current.addLayer(layer);
       }
 
@@ -73,23 +80,23 @@ const DrawController: React.FC<DrawControllerProps> = ({ onAreaSelected }) => {
       }
     };
 
-    // Add event listener with type assertion
-    map.on('draw:created' as any, onCreated);
+    // Add event listener
+    map.on('draw:created', onCreated);
 
     // Cleanup function
     return () => {
-      map.off('draw:created' as any, onCreated);
+      map.off('draw:created', onCreated);
       
-      // Remove draw control
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Control.Draw) {
-          map.removeControl(layer);
-        }
-      });
+      // Clean up draw control if it exists
+      if (drawControlRef.current) {
+        map.removeControl(drawControlRef.current);
+        drawControlRef.current = null;
+      }
       
       // Remove drawn items
       if (drawnItemsRef.current) {
         map.removeLayer(drawnItemsRef.current);
+        drawnItemsRef.current = null;
       }
     };
   }, [map, onAreaSelected]);
