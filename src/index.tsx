@@ -1,12 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import ReactModal from 'react-modal';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+// Configure ReactModal root element for accessibility
+ReactModal.setAppElement('#root');
 root.render(
   <React.StrictMode>
     <App />

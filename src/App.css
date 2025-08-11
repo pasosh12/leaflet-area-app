@@ -1,38 +1,91 @@
 .App {
-  text-align: center;
+  height: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.map-wrapper {
+  height: 50vh; /* make map full screen height */
+  margin: 0 auto;
+  width: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.map-container {
+  height: 100%;
+  width: 100%;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Ensure Leaflet controls (including Draw toolbar) are above tiles */
+.leaflet-control-container {
+  z-index: 1001;
+}
+
+/* Positioning/visibility tweaks for draw toolbar */
+.leaflet-left .leaflet-draw-toolbar {
+  margin-top: 10px;
+}
+.leaflet-draw-toolbar a {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  width: min(90vw, 520px);
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.coords-list {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 6px 12px;
+  margin-top: 12px;
+}
+
+.coord-row {
+  display: contents; /* use grid layout defined by parent */
+}
+
+.coord-index {
+  color: #666;
+}
+
+.coord-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.modal-actions > button {
+  background: #1971c2;
   color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.modal-actions > button:hover {
+  background: #1864ab;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+.leaflet-draw-toolbar { display: block !important; visibility: visible !important; }
+.leaflet-control { z-index: 1002 !important; } 
